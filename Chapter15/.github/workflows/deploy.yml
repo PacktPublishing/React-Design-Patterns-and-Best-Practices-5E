@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run tests
+        run: npm test -- --watchAll=false
+
+      - name: Build application
+        run: npm run build
+        env:
+          REACT_APP_API_URL: ${{ secrets.API_URL }}
+          REACT_APP_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+
+      - name: Deploy to environment
+        id: deploy
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            npm run deploy:production
+          else
+            npm run deploy:staging
+          fi

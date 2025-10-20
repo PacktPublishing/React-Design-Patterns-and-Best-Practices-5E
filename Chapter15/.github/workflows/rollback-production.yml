@@ -1,0 +1,39 @@
+name: Rollback Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Deployment tag to rollback to'
+        required: true
+        type: string
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://app.example.com
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build from tag
+        run: npm run build
+        env:
+          NODE_ENV: production
+          REACT_APP_API_URL: ${{ secrets.PRODUCTION_API_URL }}
+          REACT_APP_ENVIRONMENT: production
+
+      - name: Deploy rollback
+        run: npm run deploy:production

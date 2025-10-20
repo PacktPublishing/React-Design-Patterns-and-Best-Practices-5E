@@ -1,0 +1,124 @@
+// Prisma schema for the React 19 Actions chapter examples
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  age       Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  profile   Profile?
+  posts     Post[]
+  comments  Comment[]
+  orders    Order[]
+}
+
+model Profile {
+  id           String  @id @default(cuid())
+  userId       String  @unique
+  bio          String?
+  preferences  Json?
+  
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Post {
+  id            String    @id @default(cuid())
+  title         String
+  content       String
+  category      String
+  favoriteCount Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  authorId      String
+  
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments      Comment[]
+  reviews       Review[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  author    String
+  createdAt DateTime @default(now())
+  postId    String
+  userId    String
+  
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  category    String
+  images      String[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  reviews     Review[]
+  variants    Variant[]
+  orderItems  OrderItem[]
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  content   String
+  createdAt DateTime @default(now())
+  productId String
+  postId    String?
+  
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Variant {
+  id        String  @id @default(cuid())
+  name      String
+  sku       String  @unique
+  productId String
+  
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  total     Float
+  createdAt DateTime    @default(now())
+  userId    String
+  
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  quantity  Int
+  price     Float
+  orderId   String
+  productId String
+  
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  content   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

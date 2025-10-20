@@ -1,0 +1,73 @@
+name: Production Deployment
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://app.example.com
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run all tests
+        run: |
+          npm run lint
+          npm run type-check
+          npm test -- --coverage --watchAll=false
+
+      - name: Build production bundle
+        run: npm run build
+        env:
+          NODE_ENV: production
+          REACT_APP_API_URL: ${{ secrets.PRODUCTION_API_URL }}
+          REACT_APP_ENVIRONMENT: production
+          REACT_APP_GA_ID: ${{ secrets.PRODUCTION_GA_ID }}
+          REACT_APP_SENTRY_DSN: ${{ secrets.PRODUCTION_SENTRY_DSN }}
+          GENERATE_SOURCEMAP: false
+
+      - name: Deploy to production
+        run: npm run deploy:production
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+
+      - name: Create deployment tag
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag -a "deploy-$(date +%Y%m%d-%H%M%S)" -m "Production deployment"
+          git push origin --tags
+
+      - name: Notify deployment
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          payload: |
+            {
+              "text": "Production deployment ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Deployment to production: *${{ job.status }}*"
+                  }
+                }
+              ]
+            }

@@ -1,0 +1,48 @@
+name: Deploy Multi-Environment
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - branch: main
+            environment: production
+            api_url: https://api.example.com
+          - branch: staging
+            environment: staging
+            api_url: https://staging-api.example.com
+          - branch: develop
+            environment: development
+            api_url: https://dev-api.example.com
+
+    steps:
+      - uses: actions/checkout@v4
+        if: github.ref == format('refs/heads/{0}', matrix.branch)
+
+      - name: Setup Node.js
+        if: github.ref == format('refs/heads/{0}', matrix.branch)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: github.ref == format('refs/heads/{0}', matrix.branch)
+        run: npm install --no-audit --no-fund
+
+      - name: Build for ${{ matrix.environment }}
+        if: github.ref == format('refs/heads/{0}', matrix.branch)
+        run: npm run build
+        env:
+          REACT_APP_API_URL: ${{ matrix.api_url }}
+          REACT_APP_ENVIRONMENT: ${{ matrix.environment }}
+          REACT_APP_SENTRY_DSN: ${{ secrets[format('SENTRY_DSN_{0}', matrix.environment)] }}
