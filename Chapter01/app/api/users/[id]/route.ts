@@ -1,15 +1,21 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  // Unwrap the params Promise
+  const { id } = await params;
+
   // Simulate database query
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   const user = {
-    id: params.id,
+    id,
     name: "Jane Smith",
     email: "jane.smith@example.com",
     createdAt: new Date("2023-06-20").toISOString(),
-  }
+  };
 
-  return NextResponse.json(user)
+  return NextResponse.json(user);
 }
