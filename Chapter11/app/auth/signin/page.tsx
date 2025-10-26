@@ -1,4 +1,14 @@
 import { signIn } from "@/auth"
+import { AuthError } from "next-auth"
+import { redirect } from "next/navigation"
+
+function handleAuthError(error: unknown) {
+  if (error instanceof AuthError) {
+    return redirect(`/auth/error?error=${error.type}`)
+  }
+
+  throw error
+}
 
 export default function SignInPage({
   searchParams,
@@ -18,7 +28,11 @@ export default function SignInPage({
             <form
               action={async () => {
                 "use server"
-                await signIn("github", { redirectTo: callbackUrl })
+                try {
+                  await signIn("github", { redirectTo: callbackUrl })
+                } catch (error) {
+                  return handleAuthError(error)
+                }
               }}
             >
               <button
@@ -32,7 +46,11 @@ export default function SignInPage({
             <form
               action={async () => {
                 "use server"
-                await signIn("google", { redirectTo: callbackUrl })
+                try {
+                  await signIn("google", { redirectTo: callbackUrl })
+                } catch (error) {
+                  return handleAuthError(error)
+                }
               }}
             >
               <button
@@ -55,11 +73,23 @@ export default function SignInPage({
             <form
               action={async (formData: FormData) => {
                 "use server"
-                await signIn("credentials", {
-                  email: formData.get("email"),
-                  password: formData.get("password"),
-                  redirectTo: callbackUrl,
-                })
+
+                const email = formData.get("email")
+                const password = formData.get("password")
+
+                if (typeof email !== "string" || typeof password !== "string") {
+                  return redirect("/auth/error?error=InvalidCredentials")
+                }
+
+                try {
+                  await signIn("credentials", {
+                    email,
+                    password,
+                    redirectTo: callbackUrl,
+                  })
+                } catch (error) {
+                  return handleAuthError(error)
+                }
               }}
               className="space-y-4"
             >

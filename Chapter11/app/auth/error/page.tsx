@@ -1,17 +1,22 @@
-export default function AuthErrorPage({
+export default async function AuthErrorPage({
   searchParams,
 }: {
-  searchParams: { error?: string }
+  searchParams: Promise<{ error?: string }>;
 }) {
-  const error = searchParams.error || "Unknown error"
+  const params = await searchParams;
+  const error = params.error || "Unknown error";
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">Authentication Error</h2>
+          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
+            Authentication Error
+          </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            {error === "CredentialsSignin" ? "Invalid email or password" : "An error occurred during authentication"}
+            {error === "CredentialsSignin"
+              ? "Invalid email or password"
+              : "An error occurred during authentication"}
           </p>
         </div>
         <div className="mt-8">
@@ -24,5 +29,5 @@ export default function AuthErrorPage({
         </div>
       </div>
     </div>
-  )
+  );
 }
