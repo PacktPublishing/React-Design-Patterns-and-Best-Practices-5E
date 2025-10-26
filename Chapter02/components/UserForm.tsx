@@ -1,15 +1,26 @@
-"use client"
+"use client";
 
-import { createUser } from "@/actions/users"
+import { createUser } from "@/actions/users";
 
 export default function UserForm() {
   return (
-    <form action={createUser} className="space-y-4 max-w-md mx-auto p-6 bg-card rounded-lg border">
+    <form
+      action={async (formData: FormData) => {
+        await createUser(formData);
+      }}
+      className="space-y-4 max-w-md mx-auto p-6 bg-card rounded-lg border"
+    >
       <div>
         <label htmlFor="name" className="block text-sm font-medium mb-2">
           Name
         </label>
-        <input id="name" name="name" placeholder="John Doe" required className="w-full px-3 py-2 border rounded-md" />
+        <input
+          id="name"
+          name="name"
+          placeholder="John Doe"
+          required
+          className="w-full px-3 py-2 border rounded-md"
+        />
       </div>
 
       <div>
@@ -33,5 +44,5 @@ export default function UserForm() {
         Create User
       </button>
     </form>
-  )
+  );
 }

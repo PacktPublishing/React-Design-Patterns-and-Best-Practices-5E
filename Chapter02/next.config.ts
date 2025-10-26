@@ -1,12 +1,9 @@
-import type { NextConfig } from "next"
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
     // Enable Turbopack filesystem caching for development
     turbopackFileSystemCacheForDev: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
@@ -20,6 +17,6 @@ const nextConfig: NextConfig = {
     // Only enable for development or trusted private networks
     dangerouslyAllowLocalIP: false,
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;
