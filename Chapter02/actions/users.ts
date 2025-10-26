@@ -23,10 +23,11 @@ export async function createUser(
   }
 
   // Database operation
+  console.log("Creating user with name:", name, "and email:", email);
   const user = await db.user.create({
     data: { name, email },
   });
-
+  console.log("User created:", user);
   revalidatePath("/users");
 
   return { success: true, user };
@@ -34,10 +35,7 @@ export async function createUser(
 
 export async function createUserWithValidation(
   formData: FormData
-): Promise<
-  | { success: true; user: any }
-  | { success: false; errors: ReturnType<typeof userSchema.flatten> }
-> {
+): Promise<{ success: true; user: any } | { success: false; errors: any }> {
   try {
     const name = formData.get("name") as string | null;
     const email = formData.get("email") as string | null;

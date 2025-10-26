@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useFormStatus } from "react-dom"
-import { updateProfile } from "@/actions/profile"
-import { Loader2 } from "lucide-react"
+import { useFormStatus } from "react-dom";
+import { updateProfile } from "@/actions/profile";
+import { Loader2 } from "lucide-react";
 
 function SubmitButton() {
-  const { pending } = useFormStatus()
+  const { pending } = useFormStatus();
 
   return (
     <button
@@ -24,19 +24,31 @@ function SubmitButton() {
         "Save Changes"
       )}
     </button>
-  )
+  );
 }
 
 export default function ProfileForm({ userId }: { userId: string }) {
+  async function handleSubmit(formData: FormData) {
+    await updateProfile(formData);
+  }
+
   return (
-    <form action={updateProfile} className="space-y-4 max-w-md mx-auto p-6 bg-card rounded-lg border">
+    <form
+      action={handleSubmit}
+      className="space-y-4 max-w-md mx-auto p-6 bg-card rounded-lg border"
+    >
       <input type="hidden" name="userId" value={userId} />
 
       <div>
         <label htmlFor="name" className="block text-sm font-medium mb-2">
           Full Name
         </label>
-        <input id="name" name="name" placeholder="Full Name" className="w-full px-3 py-2 border rounded-md" />
+        <input
+          id="name"
+          name="name"
+          placeholder="Full Name"
+          className="w-full px-3 py-2 border rounded-md"
+        />
       </div>
 
       <div>
@@ -56,10 +68,16 @@ export default function ProfileForm({ userId }: { userId: string }) {
         <label htmlFor="bio" className="block text-sm font-medium mb-2">
           Bio
         </label>
-        <textarea id="bio" name="bio" placeholder="Bio" rows={4} className="w-full px-3 py-2 border rounded-md" />
+        <textarea
+          id="bio"
+          name="bio"
+          placeholder="Bio"
+          rows={4}
+          className="w-full px-3 py-2 border rounded-md"
+        />
       </div>
 
       <SubmitButton />
     </form>
-  )
+  );
 }
