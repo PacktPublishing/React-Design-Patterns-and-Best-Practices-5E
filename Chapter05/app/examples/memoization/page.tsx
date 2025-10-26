@@ -29,7 +29,7 @@ const sampleProducts: Product[] = Array.from({ length: 100 }, (_, i) => ({
 const ProductListBad: React.FC<{ products: Product[] }> = ({ products }) => {
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState<"name" | "price">("name")
-  const [computeCount, setComputeCount] = useState(0)
+  let computeCount = 0
 
   // Expensive work on every render - even unrelated state changes
   const processedProducts = products
@@ -40,7 +40,7 @@ const ProductListBad: React.FC<{ products: Product[] }> = ({ products }) => {
     })
     .map((product) => {
       // Simulate expensive computation
-      setComputeCount((c) => c + 1)
+      computeCount += 1
       return {
         ...product,
         formattedPrice: new Intl.NumberFormat("en-US", {
@@ -86,18 +86,17 @@ const ProductListBad: React.FC<{ products: Product[] }> = ({ products }) => {
 const ProductListGood: React.FC<{ products: Product[] }> = ({ products }) => {
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState<"name" | "price">("name")
-  const [computeCount, setComputeCount] = useState(0)
+  const { processedProducts, computeCount } = useMemo(() => {
+    let count = 0
 
-  // Expensive computation only runs when inputs actually change
-  const processedProducts = useMemo(() => {
-    return products
+    const processed = products
       .filter((product) => product.name.toLowerCase().includes(searchTerm.toLowerCase()))
       .sort((a, b) => {
         if (sortBy === "name") return a.name.localeCompare(b.name)
         return a.price - b.price
       })
       .map((product) => {
-        setComputeCount((c) => c + 1)
+        count += 1
         return {
           ...product,
           formattedPrice: new Intl.NumberFormat("en-US", {
@@ -106,6 +105,11 @@ const ProductListGood: React.FC<{ products: Product[] }> = ({ products }) => {
           }).format(product.price),
         }
       })
+
+    return {
+      processedProducts: processed,
+      computeCount: count,
+    }
   }, [products, searchTerm, sortBy])
 
   // Stable function reference prevents child re-renders
