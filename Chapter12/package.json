@@ -1,0 +1,33 @@
+{
+  "name": "dynamic-api",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.json",
+    "migrate": "tsx src/db/migrate.ts",
+    "generate": "drizzle-kit generate",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "zod": "^3.23.8",
+    "drizzle-orm": "^0.33.0",
+    "postgres": "^3.4.4",
+    "express-rate-limit": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.7.4",
+    "drizzle-kit": "^0.27.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
