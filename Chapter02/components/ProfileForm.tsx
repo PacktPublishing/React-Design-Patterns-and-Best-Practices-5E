@@ -1,11 +1,16 @@
-"use client";
+"use client"
 
-import { useFormStatus } from "react-dom";
-import { updateProfile } from "@/actions/profile";
-import { Loader2 } from "lucide-react";
+import { useFormStatus } from "react-dom"
+import { useMemo } from "react"
+import { updateProfile } from "@/actions/profile"
+import { Loader2 } from "lucide-react"
+
+type ProfileFormProps = {
+  users: { id: string; name: string; email: string }[]
+}
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+  const { pending } = useFormStatus()
 
   return (
     <button
@@ -24,12 +29,15 @@ function SubmitButton() {
         "Save Changes"
       )}
     </button>
-  );
+  )
 }
 
-export default function ProfileForm({ userId }: { userId: string }) {
+export default function ProfileForm({ users }: ProfileFormProps) {
+  const hasUsers = users.length > 0
+  const defaultEmail = useMemo(() => users[0]?.email ?? "", [users])
+
   async function handleSubmit(formData: FormData) {
-    await updateProfile(formData);
+    await updateProfile(formData)
   }
 
   return (
@@ -37,8 +45,6 @@ export default function ProfileForm({ userId }: { userId: string }) {
       action={handleSubmit}
       className="space-y-4 max-w-md mx-auto p-6 bg-card rounded-lg border"
     >
-      <input type="hidden" name="userId" value={userId} />
-
       <div>
         <label htmlFor="name" className="block text-sm font-medium mb-2">
           Full Name
@@ -53,15 +59,25 @@ export default function ProfileForm({ userId }: { userId: string }) {
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-2">
-          Email
+          Select User Email
         </label>
-        <input
+        <select
           id="email"
           name="email"
-          type="email"
-          placeholder="Email"
-          className="w-full px-3 py-2 border rounded-md"
-        />
+          defaultValue={defaultEmail}
+          disabled={!hasUsers}
+          className="w-full px-3 py-2 border rounded-md bg-background"
+          required
+        >
+          <option value="" disabled>
+            {hasUsers ? "Choose an email" : "Create a user first"}
+          </option>
+          {users.map((user) => (
+            <option key={user.id} value={user.email}>
+              {user.name} ({user.email})
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>
@@ -79,5 +95,5 @@ export default function ProfileForm({ userId }: { userId: string }) {
 
       <SubmitButton />
     </form>
-  );
+  )
 }

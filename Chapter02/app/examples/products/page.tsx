@@ -1,5 +1,6 @@
-import ProductList from "@/components/ProductList"
 import { Suspense } from "react"
+import ProductForm from "@/components/ProductForm"
+import ProductList from "@/components/ProductList"
 import { Skeleton } from "@/components/ui/skeleton"
 
 function ProductListSkeleton() {
@@ -18,12 +19,18 @@ function ProductListSkeleton() {
 
 export default function ProductsPage() {
   return (
-    <div className="container mx-auto py-12 px-4">
-      <h1 className="text-3xl font-bold mb-2">Products</h1>
-      <p className="text-muted-foreground mb-8">Server Components with automatic caching</p>
+    <div className="container mx-auto py-12 px-4 space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold mb-2">Products</h1>
+        <p className="text-muted-foreground">
+          Create new products and explore server component caching.
+        </p>
+      </div>
+
+      <ProductForm />
 
       <Suspense fallback={<ProductListSkeleton />}>
-        <ProductList category="electronics" />
+        <ProductList />
       </Suspense>
     </div>
   )

@@ -22,7 +22,7 @@ export async function addComment(formData: FormData): Promise<{ success: boolean
     },
   })
 
-  revalidatePath(`/posts/${postId}`)
+  revalidatePath(`/examples/comments`)
 
   return { success: true, comment }
 }

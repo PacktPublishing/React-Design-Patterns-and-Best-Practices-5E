@@ -1,13 +1,24 @@
-"use client";
+"use client"
 
-import { createUser } from "@/actions/users";
+import { useActionState, useEffect, useRef } from "react"
+import { createUser, type CreateUserState } from "@/actions/users"
+
+const initialState: CreateUserState = { status: "idle" }
 
 export default function UserForm() {
+  const formRef = useRef<HTMLFormElement>(null)
+  const [state, formAction, isPending] = useActionState(createUser, initialState)
+
+  useEffect(() => {
+    if (state.status === "success") {
+      formRef.current?.reset()
+    }
+  }, [state])
+
   return (
     <form
-      action={async (formData: FormData) => {
-        await createUser(formData);
-      }}
+      ref={formRef}
+      action={formAction}
       className="space-y-4 max-w-md mx-auto p-6 bg-card rounded-lg border"
     >
       <div>
@@ -39,10 +50,22 @@ export default function UserForm() {
 
       <button
         type="submit"
-        className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+        disabled={isPending}
+        className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        Create User
+        {isPending ? "Creating..." : "Create User"}
       </button>
+
+      {state.status === "error" && (
+        <p className="text-sm text-destructive" role="status">
+          {state.message}
+        </p>
+      )}
+      {state.status === "success" && (
+        <p className="text-sm text-emerald-600" role="status">
+          {state.message}
+        </p>
+      )}
     </form>
-  );
+  )
 }
