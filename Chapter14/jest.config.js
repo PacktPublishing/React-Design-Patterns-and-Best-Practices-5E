@@ -1,12 +1,14 @@
-const nextJest = require("next/jest")
+const nextJest = require("next/jest");
 
 const createJestConfig = nextJest({
   dir: "./",
-})
+});
 
 const customJestConfig = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
-  testEnvironment: "jest-environment-jsdom",
+  injectGlobals: true,
+  testEnvironment: "jsdom",
+  testMatch: ['**/?(*.)+(test).[tj]s?(x)'],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
   },
@@ -19,7 +21,7 @@ const customJestConfig = {
     "!**/coverage/**",
     "!**/jest.config.js",
   ],
-  coverageThresholds: {
+  coverageThreshold: {
     global: {
       branches: 80,
       functions: 80,
@@ -27,6 +29,6 @@ const customJestConfig = {
       statements: 80,
     },
   },
-}
+};
 
-module.exports = createJestConfig(customJestConfig)
+module.exports = createJestConfig(customJestConfig);
