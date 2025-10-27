@@ -1,28 +1,34 @@
-import type { Express, Request, Response } from 'express';
-import { eq } from 'drizzle-orm';
-import type { AnyPgTable } from 'drizzle-orm/pg-core';
-import { db } from '../db/index.js';
-import * as schema from '../db/schema.js';
-import { config } from '../config.js';
-import { cache } from '../utils/cache.js';
-import { sendError, sendNotFound, sendSuccess } from '../utils/responses.js';
+import type { Express, Request, Response } from "express";
+import { eq, getTableColumns } from "drizzle-orm";
+import type { AnyPgTable } from "drizzle-orm/pg-core";
+import { db } from "../db/index.js";
+import * as schema from "../db/schema.js";
+import { config } from "../config.js";
+import { cache } from "../utils/cache.js";
+import { sendError, sendNotFound, sendSuccess } from "../utils/responses.js";
 
 const isTable = (value: unknown): value is AnyPgTable =>
-  typeof value === 'object' && value !== null && 'getSQL' in (value as AnyPgTable);
+  typeof value === "object" &&
+  value !== null &&
+  "getSQL" in (value as AnyPgTable);
 
 type TableName = keyof typeof schema;
 
 export const registerCachedRoutes = (app: Express) => {
-  const tables = Object.entries(schema)
-    .filter(([key, value]) => !key.includes('Relations') && isTable(value)) as [TableName, AnyPgTable][];
+  const tables = Object.entries(schema).filter(
+    ([key, value]) => !key.includes("Relations") && isTable(value)
+  ) as [TableName, AnyPgTable][];
 
   tables.forEach(([tableName, table]) => {
-    const columns = (table.columns ?? {}) as Record<string, unknown>;
+    const columns = getTableColumns(table);
+
     const idColumn = columns.id;
+
     if (!idColumn) {
       return;
     }
-    const basePath = `/${String(tableName)}`;
+
+    const basePath = `/api/${String(tableName)}`;
 
     app.get(`${basePath}/:id`, async (req: Request, res: Response) => {
       try {
@@ -30,6 +36,7 @@ export const registerCachedRoutes = (app: Express) => {
         const cacheKey = `${tableName}:${id}`;
 
         const cached = cache.get(cacheKey);
+
         if (cached) {
           return sendSuccess(res, cached);
         }
@@ -48,7 +55,7 @@ export const registerCachedRoutes = (app: Express) => {
         sendSuccess(res, record);
       } catch (error) {
         console.error(error);
-        sendError(res, 'Failed to fetch record', 500);
+        sendError(res, "Failed to fetch record", 500);
       }
     });
 
@@ -73,7 +80,7 @@ export const registerCachedRoutes = (app: Express) => {
         sendSuccess(res, updated);
       } catch (error) {
         console.error(error);
-        sendError(res, 'Failed to update record', 400);
+        sendError(res, "Failed to update record", 400);
       }
     });
   });

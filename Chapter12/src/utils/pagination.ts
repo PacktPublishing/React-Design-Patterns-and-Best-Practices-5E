@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import { Request } from "express";
 
 export interface PaginationParams {
   page: number;
@@ -17,7 +17,10 @@ export interface PaginationMeta {
 
 export const parsePaginationParams = (req: Request): PaginationParams => {
   const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
-  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 10));
+  const limit = Math.min(
+    100,
+    Math.max(1, parseInt(req.query.limit as string, 10) || 10)
+  );
   const offset = (page - 1) * limit;
 
   return { page, limit, offset };
@@ -35,6 +38,6 @@ export const buildPaginationMeta = (
     total,
     totalPages,
     hasNext: params.page < totalPages,
-    hasPrev: params.page > 1
+    hasPrev: params.page > 1,
   };
 };

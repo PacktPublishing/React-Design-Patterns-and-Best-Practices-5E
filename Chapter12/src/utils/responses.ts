@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Response } from "express";
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -18,12 +18,12 @@ export const sendSuccess = <T>(
   res: Response,
   data: T,
   statusCode = 200,
-  meta?: ApiResponse['meta']
+  meta?: ApiResponse["meta"]
 ): Response => {
   return res.status(statusCode).json({
     success: true,
     data,
-    ...(meta && { meta })
+    ...(meta && { meta }),
   } satisfies ApiResponse<T>);
 };
 
@@ -34,13 +34,13 @@ export const sendError = (
 ): Response => {
   return res.status(statusCode).json({
     success: false,
-    error: message
+    error: message,
   } satisfies ApiResponse);
 };
 
 export const sendNotFound = (
   res: Response,
-  resource = 'Resource'
+  resource = "Resource"
 ): Response => {
   return sendError(res, `${resource} not found`, 404);
 };

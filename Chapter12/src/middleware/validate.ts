@@ -1,6 +1,6 @@
-import type { NextFunction, Request, Response } from 'express';
-import type { ZodSchema } from 'zod';
-import { sendError } from '../utils/responses.js';
+import type { NextFunction, Request, Response } from "express";
+import type { ZodSchema } from "zod";
+import { sendError } from "../utils/responses";
 
 export const validate = (schema?: ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -13,10 +13,10 @@ export const validate = (schema?: ZodSchema) => {
       next();
     } catch (error: any) {
       const messages = error?.errors
-        ?.map((issue: any) => `${issue.path.join('.')}: ${issue.message}`)
-        .join(', ');
+        ?.map((issue: any) => `${issue.path.join(".")}: ${issue.message}`)
+        .join(", ");
 
-      sendError(res, `Validation failed: ${messages ?? 'Unknown error'}`, 400);
+      sendError(res, `Validation failed: ${messages ?? "Unknown error"}`, 400);
     }
   };
 };

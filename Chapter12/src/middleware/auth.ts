@@ -1,5 +1,5 @@
-import type { NextFunction, Request, Response } from 'express';
-import { sendError } from '../utils/responses.js';
+import type { NextFunction, Request, Response } from "express";
+import { sendError } from "../utils/responses";
 
 export interface AuthenticatedRequest extends Request {
   userId?: number;
@@ -11,17 +11,17 @@ export const authenticate = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    const token = req.headers.authorization?.replace("Bearer ", "");
 
     if (!token) {
-      sendError(res, 'Authentication required', 401);
+      sendError(res, "Authentication required", 401);
       return;
     }
 
     const userId = extractUserIdFromToken(token);
 
     if (!userId) {
-      sendError(res, 'Invalid token', 401);
+      sendError(res, "Invalid token", 401);
       return;
     }
 
@@ -29,7 +29,7 @@ export const authenticate = async (
     next();
   } catch (error) {
     console.error(error);
-    sendError(res, 'Authentication failed', 401);
+    sendError(res, "Authentication failed", 401);
   }
 };
 
