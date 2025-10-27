@@ -1,34 +1,42 @@
-"use client"
+"use client";
 
-import type React from "react"
+import React, { Suspense, useEffect, useMemo } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
-import { useEffect } from "react"
-import { usePathname, useSearchParams } from "next/navigation"
+export default function AnalyticsProvider({ children }: { children: React.ReactNode }) {
+  // Keep the provider always mounted; run the tracker inside Suspense.
+  return (
+    <>
+      <Suspense fallback={null}>
+        <AnalyticsTracker />
+      </Suspense>
+      {children}
+    </>
+  );
+}
 
-export default function AnalyticsProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+function AnalyticsTracker() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Stable string so the effect doesn't re-run on object identity changes.
+  const q = useMemo(() => searchParams?.toString() ?? "", [searchParams]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Track page views
-      const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "")
+    const url = q ? `${pathname}?${q}` : pathname;
+    trackPageView(url);
+  }, [pathname, q]);
 
-      trackPageView(url)
-    }
-  }, [pathname, searchParams])
-
-  return <>{children}</>
+  return null;
 }
 
 function trackPageView(url: string) {
-  // In production, this would send to your analytics service
+  // Replace with your analytics SDK (gtag, Segment, PostHog, etc.)
   if (process.env.NODE_ENV === "production") {
-    console.log("Page view:", url)
-    // Example: window.gtag?.('event', 'page_view', { page_path: url });
+    // Example: window.gtag?.("event", "page_view", { page_path: url });
+    console.log("Page view:", url);
+  } else {
+    // Helpful during dev to verify it fires on client navigations
+    console.debug("[DEV] Page view:", url);
   }
 }
