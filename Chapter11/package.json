@@ -42,7 +42,7 @@
     "lucide-react": "^0.548.0",
     "mysql2": "latest",
     "next": "15.5.6",
-    "next-auth": "5.0.0-beta.29",
+    "next-auth": "5.0.0-beta.30",
     "nodemailer": "latest",
     "pg": "latest",
     "postgres": "latest",
